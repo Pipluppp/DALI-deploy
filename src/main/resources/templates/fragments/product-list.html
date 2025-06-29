@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- This is the fragment that will be updated by HTMX -->
+<div th:fragment="product-list-fragment" class="product-grid">
+    <div th:each="product : ${products}" class="product-card">
+        <a class="product-card-body" th:href="@{/product/{id}(id=${product.id})}">
+            <div class="product-image-container">
+                <img th:src="@{'/images/products/' + ${product.image}}" th:alt="${product.name}">
+            </div>
+            <div class="product-card-info">
+                <p class="product-card-category" th:text="${product.category}">CATEGORY</p>
+                <h3 class="product-card-name" th:text="${product.name}">Product Name</h3>
+                <p class="product-price" th:text="${product.getFormattedPrice()}">₱ 199</p>
+            </div>
+        </a>
+        <div class="product-card-actions">
+            <form th:action="@{/cart/add}" method="post">
+                <input type="hidden" name="productId" th:value="${product.id}" />
+
+                <!-- Use th:with to get the available quantity for this product -->
+                <th:block th:with="availableToAdd=${availableQuantities.get(product.id)}">
+
+                    <!-- Case 1: Product has stock and user can add more -->
+                    <div th:if="${availableToAdd != null and availableToAdd > 0}" style="display: flex; align-items: center; gap: 10px;">
+                        <input type="number" name="quantity" value="1" min="1" th:max="${availableToAdd}"
+                               style="width: 55px; padding: 10px; text-align: center; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+                        <button type="submit" class="add-to-cart-btn" style="width: auto; flex-grow: 1;">Add</button>
+                    </div>
+
+                    <!-- Case 2: Product is out of stock OR user has all available stock in cart -->
+                    <button th:if="${availableToAdd == null or availableToAdd <= 0}" type="button" class="add-to-cart-btn-disabled" disabled
+                            th:text="${product.productQuantity > 0} ? 'All in Cart' : 'Out of Stock'">
+                    </button>
+                </th:block>
+            </form>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

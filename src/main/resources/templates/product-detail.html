@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${product.name} + ' - DALI'">Product Detail - DALI</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+<header th:replace="~{fragments/header :: header}"></header>
+
+<main class="product-detail-container container">
+    <!-- Customer-facing product image -->
+    <div class="product-detail-image">
+        <img th:src="@{'/images/products/' + ${product.image}}" th:alt="${product.name}">
+    </div>
+
+    <!-- Customer-facing product info -->
+    <div class="product-detail-info" th:object="${product}">
+        <h1 th:text="*{name}">Product Name</h1>
+        <p class="product-detail-price" th:text="*{getFormattedPrice()}">₱199.00</p>
+
+        <!-- "Add to Cart" form for customers -->
+        <div class="product-actions">
+            <form th:action="@{/cart/add}" method="post">
+                <input type="hidden" name="productId" th:value="*{id}"/>
+
+                <!-- Case 1: Product is available and user can add more to cart -->
+                <!-- CORRECTED SYNTAX: Reference properties of the selection object (*) and model variables ($) separately. -->
+                <th:block th:if="*{productQuantity > 0} and ${maxAllowedToAdd > 0}">
+                    <div class="quantity-selector">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" th:max="${maxAllowedToAdd}">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-large">Add to Cart</button>
+                </th:block>
+
+                <!-- Case 2: Product is out of stock or user has all available stock in cart -->
+                <!-- CORRECTED SYNTAX: Same as above for the 'or' condition. -->
+                <th:block th:if="*{productQuantity <= 0} or ${maxAllowedToAdd <= 0}">
+                    <button type="button" class="btn-disabled btn-large" disabled
+                            th:text="*{productQuantity > 0} ? 'All stock in cart' : 'Out of Stock'">
+                    </button>
+                </th:block>
+            </form>
+        </div>
+
+        <div class="product-description">
+            <h3>Description</h3>
+            <p th:text="*{description}">
+                Product description goes here. It provides details about the product, its features, and benefits.
+            </p>
+        </div>
+    </div>
+</main>
+
+<footer class="footer" th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop - DALI</title>
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.5/dist/htmx.min.js"></script>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+
+<header class="header" th:replace="~{fragments/header :: header}"></header>
+
+<!--
+  FIXED: Added hx-include to explicitly tell HTMX which form inputs to send
+  with the GET request, since the parent is a <div> and not a <form>.
+-->
+<div class="shop-container container"
+     hx-get="/shop/products"
+     hx-trigger="keyup changed delay:200ms from:#search-input, change from:[name='category']"
+     hx-target="#product-grid-results"
+     hx-swap="innerHTML"
+     hx-include="[name='query'], [name='category']">
+
+    <!-- Filter Sidebar -->
+    <aside class="filter-sidebar">
+        <h4>Filters</h4>
+        <div class="filter-group">
+            <h5>CATEGORY</h5>
+            <ul>
+                <li>
+                    <input type="radio" name="category" value="" id="cat-all" checked="checked">
+                    <label for="cat-all">All</label>
+                </li>
+                <li th:each="cat, iterStat : ${categories}">
+                    <input type="radio" name="category" th:value="${cat}" th:id="'cat-' + ${iterStat.index}">
+                    <label th:for="'cat-' + ${iterStat.index}" th:text="${cat}">Category Name</label>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="product-grid-container">
+        <section class="search-banner">
+            <input type="search"
+                   id="search-input"
+                   name="query"
+                   class="main-search-input"
+                   placeholder="Search products..."
+            >
+        </section>
+
+        <!-- Product Grid Results -->
+        <div id="product-grid-results">
+            <div th:replace="~{fragments/product-list :: product-list-fragment}"></div>
+        </div>
+    </main>
+</div>
+
+<footer class="footer" th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

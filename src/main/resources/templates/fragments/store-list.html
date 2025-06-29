@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- This fragment renders the entire list of stores -->
+<div th:fragment="store-list-fragment">
+    <p class="store-count" th:text="${stores.size()} + ' Stores found'"></p>
+    <div class="store-list">
+        <div th:if="${#lists.isEmpty(stores)}" class="store-item">
+            <p>No stores found matching your search.</p>
+        </div>
+        <div th:each="store : ${stores}"
+             class="store-item store-item-clickable"
+             th:attr="data-lat=${store.latitude}, data-lng=${store.longitude}, data-store-id=${store.id}">
+            <h3 th:text="${store.name}">DALI EVERYDAY GROCERY – PUREZA</h3>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
